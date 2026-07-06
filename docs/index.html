@@ -831,7 +831,7 @@
             continue;
           }
 
-          const opacity = getSegmentOpacity(segmentElapsed, signal) * 0.35;
+          const opacity = getSegmentOpacity(segmentElapsed, signal) * 0.3;
           const a = points[i];
           const b = points[i + 1];
           ctx.strokeStyle = `rgba(255, 89, 0, ${opacity})`;
@@ -868,7 +868,7 @@
         const startedAt = performance.now();
 
         for (let i = 0; i < branches; i += 1) {
-          const maxSteps = 2 + Math.floor(Math.random() * 15);
+          const maxSteps = 2 + Math.floor(Math.random() * 23);
           const path = firstSteps[i]
             ? buildSignalPath(origin, maxSteps, firstSteps[i])
             : buildSignalPath(origin, maxSteps);
@@ -877,7 +877,7 @@
             const riseDuration = 160 + Math.random() * 30;
             const fadeDuration = 2678 + Math.random() * 494;
             const segmentDuration = riseDuration + fadeDuration;
-            const segmentDelay = segmentCount > 1 ? 56 : 0;
+            const segmentDelay = segmentCount > 1 ? 39 : 0;
             activeSignals.push({
               path,
               start: startedAt + i * 54,
