@@ -708,7 +708,7 @@
       let cssHeight = 0;
       let activeSignals = [];
       let animationFrame = 0;
-      let nextBurstTimer = 0;
+      const burstTimers = [0, 0];
 
       function resizeCanvas() {
         const rect = ambient.getBoundingClientRect();
@@ -894,7 +894,6 @@
           animationFrame = requestAnimationFrame(drawFrame);
         }
 
-        scheduleBurst();
       }
 
       function getDiverseStartNodes(origin, count) {
@@ -966,9 +965,12 @@
         return shuffled;
       }
 
-      function scheduleBurst() {
-        window.clearTimeout(nextBurstTimer);
-        nextBurstTimer = window.setTimeout(startBurst, 4200 + Math.random() * 3800);
+      function scheduleBurst(channel) {
+        window.clearTimeout(burstTimers[channel]);
+        burstTimers[channel] = window.setTimeout(() => {
+          startBurst();
+          scheduleBurst(channel);
+        }, 4200 + Math.random() * 3800);
       }
 
       function pointOnPath(points, progress) {
@@ -995,7 +997,14 @@
       resizeCanvas();
       window.addEventListener("resize", resizeCanvas, { passive: true });
       if (!prefersReducedMotion) {
-        window.setTimeout(startBurst, 900);
+        window.setTimeout(() => {
+          startBurst();
+          scheduleBurst(0);
+        }, 900);
+        window.setTimeout(() => {
+          startBurst();
+          scheduleBurst(1);
+        }, 2400);
       }
     })();
   </script>
