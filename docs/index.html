@@ -709,14 +709,6 @@
       let activeSignals = [];
       let animationFrame = 0;
       const burstTimers = [0, 0];
-      const pointer = {
-        x: 0,
-        y: 0,
-        lastMove: -Infinity
-      };
-      const pointerRadius = 150;
-      const pointerPush = 4;
-      const pointerFade = 520;
 
       function resizeCanvas() {
         const rect = ambient.getBoundingClientRect();
@@ -802,14 +794,9 @@
       }
 
       function drawFrame(now) {
-        const pointerStrength = getPointerStrength(now);
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (pointerStrength > 0) {
-          drawInteractiveLayer(pointerStrength);
-        } else {
-          ctx.drawImage(staticCanvas, 0, 0);
-        }
+        ctx.drawImage(staticCanvas, 0, 0);
 
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         activeSignals = activeSignals.filter((signal) => {
@@ -823,70 +810,10 @@
           return true;
         });
 
-        if (activeSignals.length > 0 || pointerStrength > 0) {
+        if (activeSignals.length > 0) {
           animationFrame = requestAnimationFrame(drawFrame);
         } else {
           animationFrame = 0;
-        }
-      }
-
-      function drawInteractiveLayer(strength) {
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "rgba(255, 89, 0, 0.035)";
-        ctx.beginPath();
-        for (const [a, b] of edges) {
-          const pointA = getInteractivePoint(a, strength);
-          const pointB = getInteractivePoint(b, strength);
-          ctx.moveTo(pointA.x, pointA.y);
-          ctx.lineTo(pointB.x, pointB.y);
-        }
-        ctx.stroke();
-
-        for (const node of nodes) {
-          if (node.x < -4 || node.x > cssWidth + 4 || node.y < -4 || node.y > cssHeight + 4) {
-            continue;
-          }
-          const point = getInteractivePoint(node, strength);
-          ctx.beginPath();
-          ctx.fillStyle = node.isWarm ? "rgba(255, 89, 0, 0.18)" : "rgba(255, 89, 0, 0.14)";
-          ctx.arc(point.x, point.y, node.isWarm ? 2.15 : 1.6, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      function getInteractivePoint(node, strength) {
-        const dx = node.x - pointer.x;
-        const dy = node.y - pointer.y;
-        const distance = Math.hypot(dx, dy);
-        if (distance >= pointerRadius) {
-          return node;
-        }
-
-        const directionX = distance > 0.001 ? dx / distance : 1;
-        const directionY = distance > 0.001 ? dy / distance : 0;
-        const falloff = Math.pow(1 - distance / pointerRadius, 2);
-        const push = pointerPush * falloff * strength;
-        return {
-          x: node.x + directionX * push,
-          y: node.y + directionY * push
-        };
-      }
-
-      function getPointerStrength(now) {
-        if (prefersReducedMotion) {
-          return 0;
-        }
-        const elapsed = now - pointer.lastMove;
-        if (elapsed < 0 || elapsed > pointerFade) {
-          return 0;
-        }
-        return Math.pow(1 - elapsed / pointerFade, 1.7);
-      }
-
-      function requestFrame() {
-        if (!animationFrame) {
-          animationFrame = requestAnimationFrame(drawFrame);
         }
       }
 
@@ -1069,15 +996,6 @@
 
       resizeCanvas();
       window.addEventListener("resize", resizeCanvas, { passive: true });
-      window.addEventListener("pointermove", (event) => {
-        const rect = ambient.getBoundingClientRect();
-        pointer.x = event.clientX - rect.left;
-        pointer.y = event.clientY - rect.top;
-        if (pointer.x >= 0 && pointer.x <= rect.width && pointer.y >= 0 && pointer.y <= rect.height) {
-          pointer.lastMove = performance.now();
-          requestFrame();
-        }
-      }, { passive: true });
       if (!prefersReducedMotion) {
         window.setTimeout(() => {
           startBurst();
