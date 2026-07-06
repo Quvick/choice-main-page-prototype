@@ -831,7 +831,7 @@
             continue;
           }
 
-          const opacity = getSegmentOpacity(segmentElapsed, signal) * 0.2;
+          const opacity = getSegmentOpacity(segmentElapsed, signal) * 0.15;
           const a = points[i];
           const b = points[i + 1];
           ctx.strokeStyle = `rgba(255, 89, 0, ${opacity})`;
@@ -868,7 +868,7 @@
         const startedAt = performance.now();
 
         for (let i = 0; i < branches; i += 1) {
-          const maxSteps = 2 + Math.floor(Math.random() * 23);
+          const maxSteps = 2 + Math.floor(Math.random() * 31);
           const path = firstSteps[i]
             ? buildSignalPath(origin, maxSteps, firstSteps[i])
             : buildSignalPath(origin, maxSteps);
